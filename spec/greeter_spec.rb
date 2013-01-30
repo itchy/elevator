@@ -8,16 +8,40 @@ class Elevator
 
   def call(floor)
   	@queue << floor unless @queue.member? floor 
+    set_direction
   end
 
-  def tick()
-    if @queue.member? @current_floor
-      @queue.delete @current_floor
+  def set_direction
+    return @direction if @direction
+    
+    if @queue.first > @current_floor
+      @direction = :up
+    else
+      @direction = :down
     end
-    return if @queue.empty?
-  	if @queue.first != @current_floor
-  		@current_floor += (@current_floor > @queue.first)?-1:1;
-  	end
+  end
+
+  def reset_direction
+    @direction = nil
+  end
+
+  def tick(count=1)
+    count.times do
+      if @queue.member? @current_floor
+        @queue.delete @current_floor
+      end
+      if @queue.empty?
+        reset_direction
+        return
+      end
+
+      if @direction == :down
+        @current_floor -= 1
+      else
+        @current_floor += 1
+      end 
+
+    end
   end
 end  
 
@@ -63,9 +87,18 @@ describe "Elevator" do
       @elevator.tick()
       @elevator.call 1
       @elevator.call 4
-      @elevator.tick
-      @elevator.tick
+      @elevator.tick 2
       @elevator.current_floor.should be 4
+    end
+
+    it "will change direction after after reaching limit of direction" do
+      @elevator.call 3
+      @elevator.tick 
+      @elevator.call 1
+      @elevator.call 4
+      @elevator.tick 20
+      @elevator.current_floor.should be 1      
+
     end
 
   end 
