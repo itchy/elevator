@@ -1,8 +1,35 @@
+class Direction
+  def initialize
+    @state = nil
+  end
+
+  def up?
+    @state == :up
+  end
+
+  def down?
+    @state == :down
+  end
+
+  def idle?
+    ! up? && ! down? 
+  end
+
+  def idle
+    @state = :idle
+  end
+
+  def set(direction)
+    @state = direction.to_sym
+  end
+end
+
 class Elevator
   attr_accessor :current_floor
 
   def initialize(floor)
   	@queue = []
+    @direction = Direction.new
   	@current_floor = floor
   end
 
@@ -14,20 +41,20 @@ class Elevator
 
   def determine_direction
     return if more_floors_in_same_direction
-    @direction = nil
+    @direction.idle
     return if @queue.empty?
     if @queue.first > @current_floor
-      @direction = :up
+      @direction.set(:up)
     else
-      @direction = :down
+      @direction.set(:down)
     end
   end
 
 
   def more_floors_in_same_direction
     return if @queue.empty?
-    return (@queue.max > @current_floor) if @direction == :up
-    return (@queue.min < @current_floor) if @direction == :down
+    return (@queue.max > @current_floor) if @direction.up?
+    return (@queue.min < @current_floor) if @direction.down?
   end
 
   def tick(count=1)
@@ -38,9 +65,9 @@ class Elevator
 
       determine_direction
 
-      if @direction == :down
+      if @direction.down?
         @current_floor -= 1
-      elsif @direction == :up
+      elsif @direction.up?
         @current_floor += 1
       end 
 
