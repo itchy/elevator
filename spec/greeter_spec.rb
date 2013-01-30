@@ -8,12 +8,14 @@ class Elevator
 
   def call(floor)
   	@queue << floor unless @queue.member? floor 
-    set_direction
   end
 
-  def set_direction
-    return @direction if @direction
-    
+
+
+  def determine_direction
+    return if more_floors_in_same_direction
+    @direction = nil
+    return if @queue.empty?
     if @queue.first > @current_floor
       @direction = :up
     else
@@ -21,8 +23,11 @@ class Elevator
     end
   end
 
-  def reset_direction
-    @direction = nil
+
+  def more_floors_in_same_direction
+    return if @queue.empty?
+    return (@queue.max > @current_floor) if @direction == :up
+    return (@queue.min < @current_floor) if @direction == :down
   end
 
   def tick(count=1)
@@ -30,14 +35,12 @@ class Elevator
       if @queue.member? @current_floor
         @queue.delete @current_floor
       end
-      if @queue.empty?
-        reset_direction
-        return
-      end
+
+      determine_direction
 
       if @direction == :down
         @current_floor -= 1
-      else
+      elsif @direction == :up
         @current_floor += 1
       end 
 
@@ -98,7 +101,6 @@ describe "Elevator" do
       @elevator.call 4
       @elevator.tick 20
       @elevator.current_floor.should be 1      
-
     end
 
   end 
