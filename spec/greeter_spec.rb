@@ -1,14 +1,25 @@
-class RSpecGreeter
-  def greet
-    "Hello RSpec!"
-  end
+class Elevator
+	attr_accessor :current_floor
+
+	def initialize(floor)
+		@current_floor = floor
+	end
+
+	def call(floor)
+		@current_floor = floor
+	end
+
 end  
 
 
-describe "Rspec Greeter" do
-  it "should say 'Hello RSpec!' when it receives the greet() message" do
-    greeter = RSpecGreeter.new
-    greeting = greeter.greet
-    greeting.should == "Hello RSpec!"
-  end  
+describe "Elevator" do
+	context "elevator is on floor 1" do
+		before do
+			@elevator = Elevator.new(1)
+		end
+	  it "responds to calls" do
+	  	@elevator.call(3)
+	  	@elevator.current_floor.should be 3
+	  end  
+  end 
 end  
