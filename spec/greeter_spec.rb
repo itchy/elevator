@@ -11,6 +11,9 @@ class Elevator
   end
 
   def tick()
+    if @queue.member? @current_floor
+      @queue.delete @current_floor
+    end
     return if @queue.empty?
   	if @queue.first != @current_floor
   		@current_floor += (@current_floor > @queue.first)?-1:1;
@@ -53,6 +56,16 @@ describe "Elevator" do
       @elevator.call(3)
       @elevator.tick()
       @elevator.current_floor.should be 3 
+    end
+
+    it "continues in a direction" do
+      @elevator.call 3
+      @elevator.tick()
+      @elevator.call 1
+      @elevator.call 4
+      @elevator.tick
+      @elevator.tick
+      @elevator.current_floor.should be 4
     end
 
   end 
